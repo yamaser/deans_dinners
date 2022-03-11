@@ -1,3 +1,4 @@
+import 'package:deans_dinners/screens/entry_form_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:deans_dinners/home.dart';
 
@@ -10,6 +11,9 @@ class App extends StatelessWidget {
     return MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(brightness: Brightness.dark),
-        home: const Home());
+        routes: {
+          Home.routeName: (context) => const Home(),
+          EntryFormScreen.routeName: (context) => const EntryFormScreen()
+        });
   }
 }
