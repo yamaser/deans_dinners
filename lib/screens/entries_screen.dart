@@ -1,32 +1,32 @@
 import 'package:deans_dinners/components/star_display.dart';
+import 'package:deans_dinners/models/entry.dart';
+import 'package:deans_dinners/repository/data_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
 class EntriesScreen extends StatelessWidget {
-  EntriesScreen({Key? key}) : super(key: key);
+  final DataRepository repository = DataRepository();
 
-  final entries = List<String>.generate(4, (i) {
-    return 'Entry $i';
-  });
+  EntriesScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('entries').snapshots(),
+        stream: repository.getEntriesStream(),
         builder: (content, snapshot) {
           if (snapshot.hasData) {
             return ListView.separated(
                 separatorBuilder: (context, index) => const Divider(height: 0),
                 itemCount: snapshot.data!.docs.length,
                 itemBuilder: (context, index) {
-                  var entry = snapshot.data!.docs[index];
+                  Entry entry = Entry.fromSnapshot(snapshot.data!.docs[index]);
                   return ListTile(
                     leading: const FlutterLogo(),
-                    title: Text(datetimeFormat(entry['date'])),
-                    subtitle: Text(entry['name'].toString()),
+                    title: Text(datetimeFormat(entry.date)),
+                    subtitle: Text(entry.dinner.name),
                     trailing: StarDisplayWidget(
-                      value: entry['rating'],
+                      value: entry.rating as int,
                     ),
                   );
                 });
@@ -37,6 +37,6 @@ class EntriesScreen extends StatelessWidget {
   }
 }
 
-String datetimeFormat(Timestamp timeStamp) {
-  return DateFormat('MMMM d, y').format(timeStamp.toDate()).toString();
+String datetimeFormat(DateTime datetime) {
+  return DateFormat('MMMM d, y').format(datetime).toString();
 }
