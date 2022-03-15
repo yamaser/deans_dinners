@@ -42,7 +42,7 @@ Widget slidable(Entry entry, DataRepository repository) {
       motion: const ScrollMotion(),
       children: [
         SlidableAction(
-            onPressed: ((context) => repository.deleteEntry(entry)),
+            onPressed: ((context) => deleteEntry(entry, repository)),
             backgroundColor: Colors.red,
             icon: Icons.delete,
             label: 'Delete')
@@ -50,11 +50,29 @@ Widget slidable(Entry entry, DataRepository repository) {
     ),
     child: ListTile(
       leading: const FlutterLogo(),
-      title: Text(datetimeFormat(entry.date)),
+      title: Text(entry.getDateAsString()),
       subtitle: Text(entry.dinner.name),
       trailing: StarDisplayWidget(
         value: entry.rating as int,
       ),
     ),
   );
+}
+
+void deleteEntry(Entry entry, DataRepository repository) {
+  updateDinner(entry, repository);
+  repository.deleteEntry(entry);
+}
+
+void updateDinner(Entry entry, DataRepository repository) async {
+  if (entry.dinner.numRatings == 1) {
+    entry.dinner.aveRating = null;
+  } else {
+    entry.dinner.aveRating =
+        (entry.dinner.numRatings * entry.dinner.aveRating! - entry.rating) /
+            (entry.dinner.numRatings - 1);
+  }
+  entry.dinner.lastFiveServeDates.removeLast();
+  entry.dinner.numRatings -= 1;
+  repository.updateDinner(entry.dinner);
 }

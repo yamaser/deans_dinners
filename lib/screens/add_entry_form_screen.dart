@@ -1,22 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:deans_dinners/components/date_picker_form_field.dart';
 import 'package:deans_dinners/models/dinner.dart';
 import 'package:deans_dinners/models/entry.dart';
 import 'package:deans_dinners/repository/data_repository.dart';
 import 'package:flutter/material.dart';
 
-class EntryFormScreen extends StatefulWidget {
-  static const routeName = 'entryFormScreen';
+class AddEntryFormScreen extends StatefulWidget {
+  static const routeName = 'AddEntryFormScreen';
 
-  const EntryFormScreen({Key? key}) : super(key: key);
+  const AddEntryFormScreen({Key? key}) : super(key: key);
 
   @override
-  State<EntryFormScreen> createState() => _EntryFormScreenState();
+  State<AddEntryFormScreen> createState() => _AddEntryFormScreenState();
 }
 
-class _EntryFormScreenState extends State<EntryFormScreen> {
+class _AddEntryFormScreenState extends State<AddEntryFormScreen> {
   final formKey = GlobalKey<FormState>();
   DataRepository repository = DataRepository();
-  Entry entry = Entry.empty();
+  Entry entry = Entry(dinner: Dinner(), date: DateTime.now(), rating: 0);
   DateTime selectedDate = DateTime.now();
 
   Future pickDate(BuildContext context) async {
@@ -41,7 +42,8 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
           stream: repository.getDinnersStream(),
           builder: (content, snapshot) {
             if (snapshot.hasData) {
-              final List<Dinner> dinnerList = _buildDinnerList(snapshot);
+              final List<Dinner> dinnerList =
+                  Dinner.buildDinnerListFromSnapshot(snapshot);
               return Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Form(
@@ -83,23 +85,7 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
                               entry.rating = value as int;
                             }),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 5.0),
-                        child: TextFormField(
-                          readOnly: true,
-                          controller: TextEditingController(
-                              text:
-                                  '${selectedDate.month}/${selectedDate.day}/${selectedDate.year}'),
-                          onTap: () => pickDate(context),
-                          decoration: const InputDecoration(
-                            labelText: 'Date',
-                            border: OutlineInputBorder(),
-                          ),
-                          onSaved: (value) {
-                            entry.date = selectedDate;
-                          },
-                        ),
-                      ),
+                      DatePickerFormField(entry: entry),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 5.0),
                         child: TextFormField(
@@ -132,10 +118,6 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
   }
 }
 
-List<Dinner> _buildDinnerList(AsyncSnapshot<QuerySnapshot> snapshot) {
-  return snapshot.data!.docs.map((e) => Dinner.fromSnapshot(e)).toList();
-}
-
 List<DropdownMenuItem<Dinner>> _buildDropdownMenuItems(
     List<Dinner> dinnerList) {
   return dinnerList.map((e) {
@@ -144,15 +126,16 @@ List<DropdownMenuItem<Dinner>> _buildDropdownMenuItems(
 }
 
 void updateDinner(Entry entry, DataRepository repository) {
-  entry.dinner.lastServed ??= entry.date;
-  if (entry.date.isAfter(entry.dinner.lastServed!)) {
-    entry.dinner.lastServed = entry.date;
+  entry.dinner.lastFiveServeDates.add(entry.date);
+  entry.dinner.lastFiveServeDates.sort();
+  if (entry.dinner.lastFiveServeDates.length == 6) {
+    entry.dinner.lastFiveServeDates.removeAt(0);
   }
-  if (entry.dinner.numRatings != 0) {
+  if (entry.dinner.numRatings > 0) {
     entry.dinner.aveRating =
-        ((entry.dinner.numRatings! * entry.dinner.aveRating!) + entry.rating) /
-            (entry.dinner.numRatings! + 1);
-    entry.dinner.numRatings = entry.dinner.numRatings! + 1;
+        ((entry.dinner.numRatings * entry.dinner.aveRating!) + entry.rating) /
+            (entry.dinner.numRatings + 1);
+    entry.dinner.numRatings = entry.dinner.numRatings + 1;
   } else {
     entry.dinner.aveRating = entry.rating;
     entry.dinner.numRatings = 1;

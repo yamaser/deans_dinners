@@ -1,6 +1,7 @@
 import 'package:deans_dinners/screens/dinners_screen.dart';
 import 'package:deans_dinners/screens/entries_screen.dart';
-import 'package:deans_dinners/screens/entry_form_screen.dart';
+import 'package:deans_dinners/screens/add_entry_form_screen.dart';
+import 'package:deans_dinners/screens/add_dinner_form_scree.dart';
 import 'package:deans_dinners/screens/gallery_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -16,7 +17,11 @@ class _HomeState extends State<Home> {
   List screens = [];
 
   void entriesButtonFunction(BuildContext context) {
-    Navigator.of(context).pushNamed(EntryFormScreen.routeName);
+    Navigator.of(context).pushNamed(AddEntryFormScreen.routeName);
+  }
+
+  void dinnersButtonFunction(BuildContext context) {
+    Navigator.of(context).pushNamed(AddDinnerFormScreen.routeName);
   }
 
   Widget entriesFAB() {
@@ -28,7 +33,7 @@ class _HomeState extends State<Home> {
 
   Widget dinnersFAB() {
     return FloatingActionButton(
-      onPressed: () {},
+      onPressed: () => dinnersButtonFunction(context),
       child: const Icon(Icons.add),
     );
   }
@@ -48,7 +53,7 @@ class _HomeState extends State<Home> {
         'navBarItem': entriesNavBarItem()
       },
       {
-        'screen': const DinnersScreen(),
+        'screen': DinnersScreen(),
         'fab': dinnersFAB(),
         'navBarItem': dinnersNavBarItem()
       },

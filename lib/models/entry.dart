@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:deans_dinners/models/dinner.dart';
+import 'package:intl/intl.dart';
 
 class Entry {
   Dinner dinner;
@@ -9,11 +10,6 @@ class Entry {
   String? referenceId;
 
   Entry({required this.dinner, required this.date, required this.rating});
-
-  Entry.empty()
-      : dinner = Dinner.noName(),
-        date = DateTime(2017, 1, 1),
-        rating = 1;
 
   Entry.fromJson(Map<String, dynamic> json)
       : dinner = Dinner.fromJson(json['dinner']),
@@ -33,4 +29,8 @@ class Entry {
         'rating': rating,
         'comment': comment
       };
+
+  String getDateAsString() {
+    return DateFormat('MMMM d, y').format(date).toString();
+  }
 }

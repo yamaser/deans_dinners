@@ -7,13 +7,11 @@ class DataRepository {
       FirebaseFirestore.instance.collection('dinners');
 
   Stream<QuerySnapshot> getDinnersStream() {
-    return dinnersCollection
-        .orderBy('lastServed', descending: true)
-        .snapshots();
+    return dinnersCollection.snapshots();
   }
 
   Future<QuerySnapshot> getDinnerSnapshot() {
-    return dinnersCollection.orderBy('lastServed', descending: true).get();
+    return dinnersCollection.get();
   }
 
   Future<DocumentReference> addDinner(Dinner dinner) {

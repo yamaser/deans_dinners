@@ -1,28 +1,29 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter/material.dart';
 
 class Dinner {
   String name;
-  DateTime? lastServed;
+  List<DateTime> lastFiveServeDates;
   num? aveRating;
-  int? numRatings;
+  int numRatings;
   String? description;
   String? referenceId;
 
   Dinner(
-      {required this.name,
-      this.lastServed,
+      {this.name = 'no name',
+      this.lastFiveServeDates = const [],
       this.aveRating,
       this.numRatings = 0,
-      this.description});
-
-  Dinner.noName() : name = 'no name';
+      this.description = 'no description'});
 
   Dinner.fromJson(Map<String, dynamic> json)
       : name = json['name'],
-        lastServed = json['lastServed'].toDate(),
+        lastFiveServeDates = _convertTimestampList(json['lastFiveServeDates']),
         aveRating = json['aveRating'],
         numRatings = json['numRatings'],
-        description = json['description'];
+        description = json['description'],
+        referenceId = json['referenceId'];
 
   factory Dinner.fromSnapshot(DocumentSnapshot snapshot) {
     final newDinner = Dinner.fromJson(snapshot.data() as Map<String, dynamic>);
@@ -32,9 +33,33 @@ class Dinner {
 
   Map<String, dynamic> toJson() => <String, dynamic>{
         'name': name,
-        'lastServed': lastServed,
+        'lastFiveServeDates': lastFiveServeDates,
         'aveRating': aveRating,
         'numRatings': numRatings,
         'description': description,
+        'referenceId': referenceId,
       };
+
+  String getLastServedAsString() {
+    return lastFiveServeDates.isEmpty
+        ? 'no info'
+        : DateFormat('MMMM d, y').format(lastFiveServeDates.last).toString();
+  }
+
+  String getAveRating() {
+    return aveRating == null ? 'no info' : aveRating!.toStringAsFixed(1);
+  }
+
+  static List<Dinner> buildDinnerListFromSnapshot(
+      AsyncSnapshot<QuerySnapshot> snapshot) {
+    return snapshot.data!.docs.map((e) => Dinner.fromSnapshot(e)).toList();
+  }
+}
+
+List<DateTime> _convertTimestampList(List<dynamic> list) {
+  if (list.isEmpty) {
+    return [];
+  } else {
+    return list.map<DateTime>((e) => e.toDate()).toList();
+  }
 }
