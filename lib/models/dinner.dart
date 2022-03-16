@@ -8,6 +8,7 @@ class Dinner {
   num? aveRating;
   int numRatings;
   String? description;
+  String? photoUrl;
   String? referenceId;
 
   Dinner(
@@ -23,6 +24,7 @@ class Dinner {
         aveRating = json['aveRating'],
         numRatings = json['numRatings'],
         description = json['description'],
+        photoUrl = json['photoUrl'],
         referenceId = json['referenceId'];
 
   factory Dinner.fromSnapshot(DocumentSnapshot snapshot) {
@@ -37,6 +39,7 @@ class Dinner {
         'aveRating': aveRating,
         'numRatings': numRatings,
         'description': description,
+        'photoUrl': photoUrl,
         'referenceId': referenceId,
       };
 

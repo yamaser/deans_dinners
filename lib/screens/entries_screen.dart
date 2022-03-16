@@ -22,7 +22,7 @@ class EntriesScreen extends StatelessWidget {
                 itemCount: snapshot.data!.docs.length,
                 itemBuilder: (context, index) {
                   Entry entry = Entry.fromSnapshot(snapshot.data!.docs[index]);
-                  return slidable(entry, repository);
+                  return slidable(entry, repository, context);
                 });
           } else {
             return const Center(child: CircularProgressIndicator());
@@ -31,11 +31,28 @@ class EntriesScreen extends StatelessWidget {
   }
 }
 
+Widget imageIcon_1(Entry entry, BuildContext context) {
+  return ClipRRect(
+    borderRadius: BorderRadius.circular(8.0),
+    child: Image(
+      image: NetworkImage(entry.dinner.photoUrl!),
+      width: 64,
+      height: 64,
+      fit: BoxFit.cover,
+      alignment: FractionalOffset.center,
+    ),
+  );
+}
+
+Widget imageIcon_2(Entry entry) {
+  return CircleAvatar(backgroundImage: NetworkImage(entry.dinner.photoUrl!));
+}
+
 String datetimeFormat(DateTime datetime) {
   return DateFormat('MMMM d, y').format(datetime).toString();
 }
 
-Widget slidable(Entry entry, DataRepository repository) {
+Widget slidable(Entry entry, DataRepository repository, BuildContext context) {
   return Slidable(
     endActionPane: ActionPane(
       extentRatio: 0.2,
@@ -49,7 +66,7 @@ Widget slidable(Entry entry, DataRepository repository) {
       ],
     ),
     child: ListTile(
-      leading: const FlutterLogo(),
+      leading: imageIcon_1(entry, context),
       title: Text(entry.getDateAsString()),
       subtitle: Text(entry.dinner.name),
       trailing: StarDisplayWidget(

@@ -11,7 +11,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         title: 'Flutter Demo',
-        theme: ThemeData(brightness: Brightness.dark),
+        theme: ThemeData(brightness: Brightness.light),
         routes: {
           Home.routeName: (context) => const Home(),
           AddEntryFormScreen.routeName: (context) => const AddEntryFormScreen(),

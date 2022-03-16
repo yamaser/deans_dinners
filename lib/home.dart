@@ -71,11 +71,11 @@ class _HomeState extends State<Home> {
         appBar: AppBar(
           centerTitle: true,
           title: const Text('Dean\'s Dinners'),
-          backgroundColor: Colors.black,
+          //backgroundColor: Colors.black,
         ),
         body: screens[currentIndex]['screen'],
         bottomNavigationBar: BottomNavigationBar(
-            backgroundColor: Colors.black,
+            //backgroundColor: Colors.black,
             currentIndex: currentIndex,
             onTap: (index) => setState(() => currentIndex = index),
             items: screens

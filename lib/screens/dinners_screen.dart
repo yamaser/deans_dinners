@@ -32,18 +32,37 @@ Widget dinnerCard(BuildContext context, Dinner dinner) {
   return Card(
     child: Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            dinner.name,
-            style: Theme.of(context).textTheme.headline5,
-          ),
-          Text('Last Served: ${dinner.getLastServedAsString()}'),
-          Text('Average Rating: ' + dinner.getAveRating()),
-          Text('Number of Ratings: ${dinner.numRatings}'),
-          Text('Description: ${dinner.description}'),
-        ],
+      child: IntrinsicHeight(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    dinner.name,
+                    style: Theme.of(context).textTheme.headline5,
+                  ),
+                  Text('Last Served: ${dinner.getLastServedAsString()}'),
+                  Text('Average Rating: ' + dinner.getAveRating()),
+                  Text('Number of Ratings: ${dinner.numRatings}'),
+                  Text('Description: ${dinner.description}'),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Flexible(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(6.0),
+                child: AspectRatio(
+                  aspectRatio: 1.7,
+                  child: Image.network(dinner.photoUrl!, fit: BoxFit.cover),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     ),
   );
