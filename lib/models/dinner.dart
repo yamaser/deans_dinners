@@ -1,26 +1,30 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:deans_dinners/models/rating.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 
 class Dinner {
   String name;
-  List<DateTime> lastFiveServeDates;
+  DateTime? lastServed;
   num? aveRating;
   int numRatings;
   String? description;
   String? photoUrl;
   String? referenceId;
+  List<Rating>? ratingsList;
 
-  Dinner(
-      {this.name = 'no name',
-      this.lastFiveServeDates = const [],
-      this.aveRating,
-      this.numRatings = 0,
-      this.description = 'no description'});
+  Dinner({
+    this.name = 'no name',
+    this.lastServed,
+    this.aveRating,
+    this.numRatings = 0,
+    this.description = 'no description',
+    this.ratingsList = const [],
+  });
 
   Dinner.fromJson(Map<String, dynamic> json)
       : name = json['name'],
-        lastFiveServeDates = _convertTimestampList(json['lastFiveServeDates']),
+        lastServed = (json['lastServed']?.toDate()),
         aveRating = json['aveRating'],
         numRatings = json['numRatings'],
         description = json['description'],
@@ -35,7 +39,8 @@ class Dinner {
 
   Map<String, dynamic> toJson() => <String, dynamic>{
         'name': name,
-        'lastFiveServeDates': lastFiveServeDates,
+        'lastServed':
+            lastServed == null ? null : Timestamp.fromDate(lastServed!),
         'aveRating': aveRating,
         'numRatings': numRatings,
         'description': description,
@@ -44,9 +49,9 @@ class Dinner {
       };
 
   String getLastServedAsString() {
-    return lastFiveServeDates.isEmpty
+    return lastServed == null
         ? 'no info'
-        : DateFormat('MMMM d, y').format(lastFiveServeDates.last).toString();
+        : DateFormat('MMMM d, y').format(lastServed!).toString();
   }
 
   String getAveRating() {
@@ -56,13 +61,5 @@ class Dinner {
   static List<Dinner> buildDinnerListFromSnapshot(
       AsyncSnapshot<QuerySnapshot> snapshot) {
     return snapshot.data!.docs.map((e) => Dinner.fromSnapshot(e)).toList();
-  }
-}
-
-List<DateTime> _convertTimestampList(List<dynamic> list) {
-  if (list.isEmpty) {
-    return [];
-  } else {
-    return list.map<DateTime>((e) => e.toDate()).toList();
   }
 }

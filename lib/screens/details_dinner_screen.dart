@@ -52,8 +52,8 @@ class DetailsDinnerScreen extends StatelessWidget {
             ),
           ),
           ElevatedButton.icon(
-            onPressed: () {
-              repository.deleteDinner(dinner);
+            onPressed: () async {
+              await repository.deleteDinner(dinner);
               Navigator.of(context).pop();
             },
             icon: const Icon(Icons.delete),

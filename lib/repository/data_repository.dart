@@ -23,55 +23,72 @@ class DataRepository {
   }
 
   Future<void> deleteDinner(Dinner dinner) async {
-    await deleteEntriesOnDeleteDinner(dinner);
+    QuerySnapshot snapshot = await dinnersCollection
+        .doc(dinner.referenceId)
+        .collection('entries')
+        .get();
+    for (DocumentSnapshot ds in snapshot.docs) {
+      ds.reference.delete();
+    }
     await dinnersCollection.doc(dinner.referenceId).delete();
   }
 
-  final CollectionReference entriesCollection =
-      FirebaseFirestore.instance.collection('entries');
+  final Query<Map<String, dynamic>> entriesCollection = FirebaseFirestore
+      .instance
+      .collectionGroup('entries')
+      .orderBy('date', descending: true);
 
   Stream<QuerySnapshot> getEntriesStream() {
-    return entriesCollection.orderBy('date', descending: true).snapshots();
+    return entriesCollection.snapshots();
   }
 
-  Future<QuerySnapshot> getEntriesSnapshot() {
-    return entriesCollection.get();
+  Future<DocumentReference> addEntry(Dinner dinner, Entry entry) {
+    _updateDinnerOnAddEntry(dinner, entry);
+    return dinnersCollection
+        .doc(dinner.referenceId)
+        .collection('entries')
+        .add(entry.toJson());
   }
 
-  Future<DocumentReference> addEntry(Entry entry) {
-    return entriesCollection.add(entry.toJson());
+  Future<void> deleteEntry(Dinner dinner, Entry entry) async {
+    _updateDinnerOnDeleteEntry(dinner, entry);
+    await dinnersCollection
+        .doc(dinner.referenceId)
+        .collection('entries')
+        .doc(entry.referenceId)
+        .delete();
   }
 
-  Future<void> updateEntry(Entry entry) async {
-    await entriesCollection.doc(entry.referenceId).update(entry.toJson());
+  Future<void> updateEntry(Dinner dinner, Entry entry) async {
+    await dinnersCollection
+        .doc(dinner.referenceId)
+        .collection('entries')
+        .doc(entry.referenceId)
+        .update(entry.toJson());
   }
 
-  Future<void> deleteEntry(Entry entry) async {
-    await updateDinnerOnDeleteEntry(entry);
-    await entriesCollection.doc(entry.referenceId).delete();
-  }
-
-  Future<void> deleteEntriesOnDeleteDinner(Dinner dinner) async {
-    QuerySnapshot entriesSnapshot = await getEntriesSnapshot();
-    for (var doc in entriesSnapshot.docs) {
-      if (doc['dinner']['referenceId'] == dinner.referenceId) {
-        await entriesCollection.doc(doc.reference.id).delete();
-      }
+  void _updateDinnerOnAddEntry(Dinner dinner, Entry entry) {
+    if (dinner.numRatings == 0) {
+      dinner.aveRating = entry.rating;
+      dinner.lastServed = entry.date;
+    } else {
+      dinner.aveRating =
+          (dinner.numRatings * dinner.aveRating! + entry.rating) /
+              (dinner.numRatings + 1);
     }
+    dinner.numRatings += 1;
+    updateDinner(dinner);
   }
 
-  Future<void> updateDinnerOnDeleteEntry(Entry entry) async {
-    Dinner dinner = Dinner.fromSnapshot(
-        await dinnersCollection.doc(entry.dinner.referenceId).get());
+  void _updateDinnerOnDeleteEntry(Dinner dinner, Entry entry) {
     if (dinner.numRatings == 1) {
       dinner.aveRating = null;
     } else {
       dinner.aveRating =
           (dinner.numRatings * dinner.aveRating! - entry.rating) /
-              (dinner.numRatings - 1);
+              (dinner.numRatings + 1);
     }
-    dinner.lastFiveServeDates.removeLast();
     dinner.numRatings -= 1;
-    await updateDinner(dinner);
+    updateDinner(dinner);
   }
 }

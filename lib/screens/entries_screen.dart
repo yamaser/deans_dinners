@@ -1,4 +1,5 @@
 import 'package:deans_dinners/components/star_display.dart';
+import 'package:deans_dinners/models/dinner.dart';
 import 'package:deans_dinners/models/entry.dart';
 import 'package:deans_dinners/repository/data_repository.dart';
 import 'package:flutter/material.dart';
@@ -17,12 +18,27 @@ class EntriesScreen extends StatelessWidget {
         stream: repository.getEntriesStream(),
         builder: (content, snapshot) {
           if (snapshot.hasData) {
+            final List<Entry> entriesList =
+                snapshot.data!.docs.map((e) => Entry.fromSnapshot(e)).toList();
+            // entriesList.sort(((a, b) => b.date.compareTo(a.date)));
             return ListView.separated(
-                separatorBuilder: (context, index) => const Divider(height: 0),
                 itemCount: snapshot.data!.docs.length,
+                separatorBuilder: (context, index) => const Divider(height: 0),
                 itemBuilder: (context, index) {
-                  Entry entry = Entry.fromSnapshot(snapshot.data!.docs[index]);
-                  return slidable(entry, repository, context);
+                  return FutureBuilder<DocumentSnapshot>(
+                      future: snapshot
+                          .data!.docs[index].reference.parent.parent!
+                          .get(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          Dinner dinner = Dinner.fromSnapshot(snapshot.data!);
+                          return slidable(
+                              entriesList[index], dinner, repository, context);
+                        } else {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+                      });
                 });
           } else {
             return const Center(child: CircularProgressIndicator());
@@ -31,44 +47,41 @@ class EntriesScreen extends StatelessWidget {
   }
 }
 
-Widget imageIcon_1(Entry entry, BuildContext context) {
+Widget imageIcon(Dinner dinner) {
   return ClipRRect(
     borderRadius: BorderRadius.circular(8.0),
     child: Image(
-      image: NetworkImage(entry.dinner.photoUrl!),
+      image: NetworkImage(dinner.photoUrl!),
       width: 64,
       height: 64,
-      fit: BoxFit.contain,
+      fit: BoxFit.cover,
       alignment: FractionalOffset.center,
     ),
   );
-}
-
-Widget imageIcon_2(Entry entry) {
-  return CircleAvatar(backgroundImage: NetworkImage(entry.dinner.photoUrl!));
 }
 
 String datetimeFormat(DateTime datetime) {
   return DateFormat('MMMM d, y').format(datetime).toString();
 }
 
-Widget slidable(Entry entry, DataRepository repository, BuildContext context) {
+Widget slidable(Entry entry, Dinner dinner, DataRepository repository,
+    BuildContext context) {
   return Slidable(
     endActionPane: ActionPane(
       extentRatio: 0.2,
       motion: const ScrollMotion(),
       children: [
         SlidableAction(
-            onPressed: ((context) => repository.deleteEntry(entry)),
+            onPressed: ((context) => repository.deleteEntry(dinner, entry)),
             backgroundColor: Colors.red,
             icon: Icons.delete,
             label: 'Delete')
       ],
     ),
     child: ListTile(
-      leading: imageIcon_1(entry, context),
+      leading: imageIcon(dinner),
       title: Text(entry.getDateAsString()),
-      subtitle: Text(entry.dinner.name),
+      subtitle: Text(dinner.name),
       trailing: StarDisplayWidget(
         value: entry.rating as int,
       ),

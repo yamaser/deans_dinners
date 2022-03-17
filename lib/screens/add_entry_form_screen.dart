@@ -17,8 +17,9 @@ class AddEntryFormScreen extends StatefulWidget {
 class _AddEntryFormScreenState extends State<AddEntryFormScreen> {
   final formKey = GlobalKey<FormState>();
   DataRepository repository = DataRepository();
-  Entry entry = Entry(dinner: Dinner(), date: DateTime.now(), rating: 0);
+  Entry entry = Entry(date: DateTime.now(), rating: 0);
   DateTime selectedDate = DateTime.now();
+  Dinner selectedDinner = Dinner();
 
   Future pickDate(BuildContext context) async {
     final pickedDate = await showDatePicker(
@@ -63,7 +64,7 @@ class _AddEntryFormScreenState extends State<AddEntryFormScreen> {
                             items: _buildDropdownMenuItems(dinnerList),
                             onChanged: (item) {},
                             onSaved: (value) {
-                              entry.dinner = (value as Dinner);
+                              selectedDinner = (value as Dinner);
                             }),
                       ),
                       Padding(
@@ -101,8 +102,7 @@ class _AddEntryFormScreenState extends State<AddEntryFormScreen> {
                       ElevatedButton(
                           onPressed: () {
                             formKey.currentState!.save();
-                            updateDinner();
-                            repository.addEntry(entry);
+                            repository.addEntry(selectedDinner, entry);
                             Navigator.of(context).pop();
                           },
                           child: const Text('Submit')),
@@ -122,23 +122,5 @@ class _AddEntryFormScreenState extends State<AddEntryFormScreen> {
     return dinnerList.map((e) {
       return DropdownMenuItem(child: Text(e.name), value: e);
     }).toList();
-  }
-
-  void updateDinner() {
-    entry.dinner.lastFiveServeDates.add(entry.date);
-    entry.dinner.lastFiveServeDates.sort();
-    if (entry.dinner.lastFiveServeDates.length == 6) {
-      entry.dinner.lastFiveServeDates.removeAt(0);
-    }
-    if (entry.dinner.numRatings > 0) {
-      entry.dinner.aveRating =
-          ((entry.dinner.numRatings * entry.dinner.aveRating!) + entry.rating) /
-              (entry.dinner.numRatings + 1);
-      entry.dinner.numRatings = entry.dinner.numRatings + 1;
-    } else {
-      entry.dinner.aveRating = entry.rating;
-      entry.dinner.numRatings = 1;
-    }
-    repository.updateDinner(entry.dinner);
   }
 }
