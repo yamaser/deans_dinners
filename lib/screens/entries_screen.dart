@@ -38,7 +38,7 @@ Widget imageIcon_1(Entry entry, BuildContext context) {
       image: NetworkImage(entry.dinner.photoUrl!),
       width: 64,
       height: 64,
-      fit: BoxFit.cover,
+      fit: BoxFit.contain,
       alignment: FractionalOffset.center,
     ),
   );
@@ -59,7 +59,7 @@ Widget slidable(Entry entry, DataRepository repository, BuildContext context) {
       motion: const ScrollMotion(),
       children: [
         SlidableAction(
-            onPressed: ((context) => deleteEntry(entry, repository)),
+            onPressed: ((context) => repository.deleteEntry(entry)),
             backgroundColor: Colors.red,
             icon: Icons.delete,
             label: 'Delete')
@@ -74,22 +74,4 @@ Widget slidable(Entry entry, DataRepository repository, BuildContext context) {
       ),
     ),
   );
-}
-
-void deleteEntry(Entry entry, DataRepository repository) {
-  updateDinner(entry, repository);
-  repository.deleteEntry(entry);
-}
-
-void updateDinner(Entry entry, DataRepository repository) async {
-  if (entry.dinner.numRatings == 1) {
-    entry.dinner.aveRating = null;
-  } else {
-    entry.dinner.aveRating =
-        (entry.dinner.numRatings * entry.dinner.aveRating! - entry.rating) /
-            (entry.dinner.numRatings - 1);
-  }
-  entry.dinner.lastFiveServeDates.removeLast();
-  entry.dinner.numRatings -= 1;
-  repository.updateDinner(entry.dinner);
 }

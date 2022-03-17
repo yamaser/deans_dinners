@@ -36,6 +36,11 @@ class _AddDinnerFormScreenState extends State<AddDinnerFormScreen> {
     setState(() {});
   }
 
+  Future<void> selectFromGallery() async {
+    photo = await _picker.pickImage(source: ImageSource.gallery);
+    setState(() {});
+  }
+
   Future<void> uploadPhotoToFirebase(Dinner dinner) async {
     Reference storageReference =
         FirebaseStorage.instance.ref().child(basename(photo!.name));
@@ -85,12 +90,26 @@ class _AddDinnerFormScreenState extends State<AddDinnerFormScreen> {
     }
   }
 
+  Widget _displayGetImageButtons() {
+    if (photo == null) {
+      return Column(
+        children: [
+          _takePhotoButton(photo, getPhoto),
+          const Text('or'),
+          _selectFromGalleryButton(photo, selectFromGallery)
+        ],
+      );
+    } else {
+      return Container();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Create New Dinner Item'),
-        backgroundColor: Colors.black,
+        //backgroundColor: Colors.black,
       ),
       body: Padding(
         padding: const EdgeInsets.all(10.0),
@@ -130,8 +149,8 @@ class _AddDinnerFormScreenState extends State<AddDinnerFormScreen> {
                 ),
               ),
               _displayImage(photo),
+              _displayGetImageButtons(),
               _displayFormButtons(context),
-              _takePhotoButton(photo, getPhoto),
             ],
           ),
         ),
@@ -154,16 +173,26 @@ Widget _takePhotoButton(XFile? photo, Function getPhoto) {
   }
 }
 
+Widget _selectFromGalleryButton(XFile? photo, Function selectFromGallery) {
+  if (photo == null) {
+    return ElevatedButton.icon(
+      onPressed: () async {
+        await selectFromGallery();
+      },
+      icon: const Icon(Icons.view_comfy),
+      label: const Text('Select Image From Gallery'),
+    );
+  } else {
+    return Container();
+  }
+}
+
 Widget _displayImage(XFile? photo) {
   if (photo != null) {
     return Flexible(
-      fit: FlexFit.tight,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(8.0),
-        child: Image.file(
-          File(photo.path),
-        ),
-      ),
+          borderRadius: BorderRadius.circular(8),
+          child: Image.file(File(photo.path))),
     );
   } else {
     return Container();

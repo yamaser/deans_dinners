@@ -58,7 +58,7 @@ class _HomeState extends State<Home> {
         'navBarItem': dinnersNavBarItem()
       },
       {
-        'screen': const GalleryScreen(),
+        'screen': GalleryScreen(),
         'fab': galleryFAB(),
         'navBarItem': galleryNavBarItem()
       },
@@ -69,6 +69,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          toolbarHeight: 40,
           centerTitle: true,
           title: const Text('Dean\'s Dinners'),
           //backgroundColor: Colors.black,

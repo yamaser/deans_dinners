@@ -10,7 +10,7 @@ class DataRepository {
     return dinnersCollection.snapshots();
   }
 
-  Future<QuerySnapshot> getDinnerSnapshot() {
+  Future<QuerySnapshot> getDinnersSnapshot() {
     return dinnersCollection.get();
   }
 
@@ -18,11 +18,12 @@ class DataRepository {
     return dinnersCollection.add(dinner.toJson());
   }
 
-  void updateDinner(Dinner dinner) async {
+  Future<void> updateDinner(Dinner dinner) async {
     await dinnersCollection.doc(dinner.referenceId).update(dinner.toJson());
   }
 
-  void deleteDinner(Dinner dinner) async {
+  Future<void> deleteDinner(Dinner dinner) async {
+    await deleteEntriesOnDeleteDinner(dinner);
     await dinnersCollection.doc(dinner.referenceId).delete();
   }
 
@@ -33,15 +34,44 @@ class DataRepository {
     return entriesCollection.orderBy('date', descending: true).snapshots();
   }
 
+  Future<QuerySnapshot> getEntriesSnapshot() {
+    return entriesCollection.get();
+  }
+
   Future<DocumentReference> addEntry(Entry entry) {
     return entriesCollection.add(entry.toJson());
   }
 
-  void updateEntry(Entry entry) async {
+  Future<void> updateEntry(Entry entry) async {
     await entriesCollection.doc(entry.referenceId).update(entry.toJson());
   }
 
-  void deleteEntry(Entry entry) async {
+  Future<void> deleteEntry(Entry entry) async {
+    await updateDinnerOnDeleteEntry(entry);
     await entriesCollection.doc(entry.referenceId).delete();
+  }
+
+  Future<void> deleteEntriesOnDeleteDinner(Dinner dinner) async {
+    QuerySnapshot entriesSnapshot = await getEntriesSnapshot();
+    for (var doc in entriesSnapshot.docs) {
+      if (doc['dinner']['referenceId'] == dinner.referenceId) {
+        await entriesCollection.doc(doc.reference.id).delete();
+      }
+    }
+  }
+
+  Future<void> updateDinnerOnDeleteEntry(Entry entry) async {
+    Dinner dinner = Dinner.fromSnapshot(
+        await dinnersCollection.doc(entry.dinner.referenceId).get());
+    if (dinner.numRatings == 1) {
+      dinner.aveRating = null;
+    } else {
+      dinner.aveRating =
+          (dinner.numRatings * dinner.aveRating! - entry.rating) /
+              (dinner.numRatings - 1);
+    }
+    dinner.lastFiveServeDates.removeLast();
+    dinner.numRatings -= 1;
+    await updateDinner(dinner);
   }
 }

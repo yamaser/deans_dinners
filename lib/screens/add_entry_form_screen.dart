@@ -36,7 +36,7 @@ class _AddEntryFormScreenState extends State<AddEntryFormScreen> {
     return Scaffold(
         appBar: AppBar(
           title: const Text('Create New Entry'),
-          backgroundColor: Colors.black,
+          //backgroundColor: Colors.black,
         ),
         body: StreamBuilder<QuerySnapshot>(
           stream: repository.getDinnersStream(),
@@ -101,7 +101,7 @@ class _AddEntryFormScreenState extends State<AddEntryFormScreen> {
                       ElevatedButton(
                           onPressed: () {
                             formKey.currentState!.save();
-                            updateDinner(entry, repository);
+                            updateDinner();
                             repository.addEntry(entry);
                             Navigator.of(context).pop();
                           },
@@ -116,29 +116,29 @@ class _AddEntryFormScreenState extends State<AddEntryFormScreen> {
           },
         ));
   }
-}
 
-List<DropdownMenuItem<Dinner>> _buildDropdownMenuItems(
-    List<Dinner> dinnerList) {
-  return dinnerList.map((e) {
-    return DropdownMenuItem(child: Text(e.name), value: e);
-  }).toList();
-}
+  List<DropdownMenuItem<Dinner>> _buildDropdownMenuItems(
+      List<Dinner> dinnerList) {
+    return dinnerList.map((e) {
+      return DropdownMenuItem(child: Text(e.name), value: e);
+    }).toList();
+  }
 
-void updateDinner(Entry entry, DataRepository repository) {
-  entry.dinner.lastFiveServeDates.add(entry.date);
-  entry.dinner.lastFiveServeDates.sort();
-  if (entry.dinner.lastFiveServeDates.length == 6) {
-    entry.dinner.lastFiveServeDates.removeAt(0);
+  void updateDinner() {
+    entry.dinner.lastFiveServeDates.add(entry.date);
+    entry.dinner.lastFiveServeDates.sort();
+    if (entry.dinner.lastFiveServeDates.length == 6) {
+      entry.dinner.lastFiveServeDates.removeAt(0);
+    }
+    if (entry.dinner.numRatings > 0) {
+      entry.dinner.aveRating =
+          ((entry.dinner.numRatings * entry.dinner.aveRating!) + entry.rating) /
+              (entry.dinner.numRatings + 1);
+      entry.dinner.numRatings = entry.dinner.numRatings + 1;
+    } else {
+      entry.dinner.aveRating = entry.rating;
+      entry.dinner.numRatings = 1;
+    }
+    repository.updateDinner(entry.dinner);
   }
-  if (entry.dinner.numRatings > 0) {
-    entry.dinner.aveRating =
-        ((entry.dinner.numRatings * entry.dinner.aveRating!) + entry.rating) /
-            (entry.dinner.numRatings + 1);
-    entry.dinner.numRatings = entry.dinner.numRatings + 1;
-  } else {
-    entry.dinner.aveRating = entry.rating;
-    entry.dinner.numRatings = 1;
-  }
-  repository.updateDinner(entry.dinner);
 }
