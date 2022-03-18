@@ -37,6 +37,7 @@ class _AddEntryFormScreenState extends State<AddEntryFormScreen> {
     return Scaffold(
         appBar: AppBar(
           title: const Text('Create New Entry'),
+          toolbarHeight: 40,
           //backgroundColor: Colors.black,
         ),
         body: StreamBuilder<QuerySnapshot>(

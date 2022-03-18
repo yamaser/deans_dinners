@@ -109,6 +109,7 @@ class _AddDinnerFormScreenState extends State<AddDinnerFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Create New Dinner Item'),
+        toolbarHeight: 40,
         //backgroundColor: Colors.black,
       ),
       body: Padding(

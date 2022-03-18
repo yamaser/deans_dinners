@@ -1,3 +1,4 @@
+import 'package:deans_dinners/models/dinner.dart';
 import 'package:deans_dinners/screens/dinners_screen.dart';
 import 'package:deans_dinners/screens/entries_screen.dart';
 import 'package:deans_dinners/screens/add_entry_form_screen.dart';
@@ -15,6 +16,15 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   int currentIndex = 0;
   List screens = [];
+  List<Dinner> selectedDinnerList = [];
+
+  void addDinnerToList(List<Dinner> selectedDinners, Dinner dinner) {
+    selectedDinners.add(dinner);
+  }
+
+  void removeDinnerFromList(List<Dinner> selectedDinners, Dinner dinner) {
+    selectedDinners.remove(dinner);
+  }
 
   void entriesButtonFunction(BuildContext context) {
     Navigator.of(context).pushNamed(AddEntryFormScreen.routeName);
@@ -50,17 +60,20 @@ class _HomeState extends State<Home> {
       {
         'screen': EntriesScreen(),
         'fab': entriesFAB(),
-        'navBarItem': entriesNavBarItem()
+        'navBarItem': entriesNavBarItem(),
+        'title': 'Entries',
       },
       {
         'screen': DinnersScreen(),
         'fab': dinnersFAB(),
-        'navBarItem': dinnersNavBarItem()
+        'navBarItem': dinnersNavBarItem(),
+        'title': 'Dean\'s Dinners',
       },
       {
         'screen': GalleryScreen(),
         'fab': galleryFAB(),
-        'navBarItem': galleryNavBarItem()
+        'navBarItem': galleryNavBarItem(),
+        'title': 'Select Gallery',
       },
     ];
   }
@@ -71,10 +84,13 @@ class _HomeState extends State<Home> {
         appBar: AppBar(
           toolbarHeight: 40,
           centerTitle: true,
-          title: const Text('Dean\'s Dinners'),
+          title: Text(screens[currentIndex]['title']),
           //backgroundColor: Colors.black,
         ),
-        body: screens[currentIndex]['screen'],
+        body: IndexedStack(
+            index: currentIndex,
+            children: screens.map<Widget>((e) => e['screen']).toList()),
+        //screens[currentIndex]['screen'],
         bottomNavigationBar: BottomNavigationBar(
             //backgroundColor: Colors.black,
             currentIndex: currentIndex,

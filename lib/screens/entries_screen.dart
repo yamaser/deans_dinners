@@ -20,7 +20,6 @@ class EntriesScreen extends StatelessWidget {
           if (snapshot.hasData) {
             final List<Entry> entriesList =
                 snapshot.data!.docs.map((e) => Entry.fromSnapshot(e)).toList();
-            // entriesList.sort(((a, b) => b.date.compareTo(a.date)));
             return ListView.separated(
                 itemCount: snapshot.data!.docs.length,
                 separatorBuilder: (context, index) => const Divider(height: 0),
