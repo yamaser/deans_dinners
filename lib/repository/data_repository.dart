@@ -7,11 +7,17 @@ class DataRepository {
       FirebaseFirestore.instance.collection('dinners');
 
   Stream<QuerySnapshot> getDinnersStream() {
-    return dinnersCollection.snapshots();
+    return dinnersCollection
+        .orderBy('lastServed', descending: true)
+        .snapshots();
   }
 
   Future<QuerySnapshot> getDinnersSnapshot() {
     return dinnersCollection.get();
+  }
+
+  Future<DocumentSnapshot> getDinnerDocument(Dinner dinner) {
+    return dinnersCollection.doc(dinner.referenceId).get();
   }
 
   Future<DocumentReference> addDinner(Dinner dinner) {
@@ -83,10 +89,11 @@ class DataRepository {
   void _updateDinnerOnDeleteEntry(Dinner dinner, Entry entry) {
     if (dinner.numRatings == 1) {
       dinner.aveRating = null;
+      dinner.lastServed = null;
     } else {
       dinner.aveRating =
           (dinner.numRatings * dinner.aveRating! - entry.rating) /
-              (dinner.numRatings + 1);
+              (dinner.numRatings - 1);
     }
     dinner.numRatings -= 1;
     updateDinner(dinner);

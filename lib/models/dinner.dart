@@ -58,6 +58,16 @@ class Dinner {
     return aveRating == null ? 'no info' : aveRating!.toStringAsFixed(1);
   }
 
+  void copySnapshot(Dinner dinner) {
+    name = dinner.name;
+    lastServed = dinner.lastServed;
+    aveRating = dinner.aveRating;
+    numRatings = dinner.numRatings;
+    description = dinner.description;
+    photoUrl = dinner.photoUrl;
+    referenceId = dinner.referenceId;
+  }
+
   static List<Dinner> buildDinnerListFromSnapshot(
       AsyncSnapshot<QuerySnapshot> snapshot) {
     return snapshot.data!.docs.map((e) => Dinner.fromSnapshot(e)).toList();

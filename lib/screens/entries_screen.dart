@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:deans_dinners/components/star_display.dart';
 import 'package:deans_dinners/models/dinner.dart';
 import 'package:deans_dinners/models/entry.dart';
@@ -15,42 +16,53 @@ class EntriesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-        stream: repository.getEntriesStream(),
-        builder: (content, snapshot) {
-          if (snapshot.hasData) {
-            final List<Entry> entriesList =
-                snapshot.data!.docs.map((e) => Entry.fromSnapshot(e)).toList();
-            return ListView.separated(
-                itemCount: snapshot.data!.docs.length,
-                separatorBuilder: (context, index) => const Divider(height: 0),
-                itemBuilder: (context, index) {
-                  return FutureBuilder<DocumentSnapshot>(
-                      future: snapshot
-                          .data!.docs[index].reference.parent.parent!
-                          .get(),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          Dinner dinner = Dinner.fromSnapshot(snapshot.data!);
-                          return slidable(
-                              entriesList[index], dinner, repository, context);
-                        } else {
-                          return const Center(
-                              child: CircularProgressIndicator());
-                        }
-                      });
-                });
-          } else {
-            return const Center(child: CircularProgressIndicator());
-          }
-        });
+      stream: repository.getDinnersStream(),
+      builder: (content, snapshot) {
+        return StreamBuilder<QuerySnapshot>(
+          stream: repository.getEntriesStream(),
+          builder: (content, snapshot) {
+            if (snapshot.hasData) {
+              final List<Entry> entriesList = snapshot.data!.docs
+                  .map((e) => Entry.fromSnapshot(e))
+                  .toList();
+              return ListView.separated(
+                  itemCount: snapshot.data!.docs.length,
+                  separatorBuilder: (context, index) =>
+                      const Divider(height: 0),
+                  itemBuilder: (context, index) {
+                    return FutureBuilder<DocumentSnapshot>(
+                        future: snapshot
+                            .data!.docs[index].reference.parent.parent!
+                            .get(),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            Dinner dinner = Dinner.fromSnapshot(snapshot.data!);
+                            return slidable(entriesList[index], dinner,
+                                repository, context);
+                          } else {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          }
+                        });
+                  });
+            } else {
+              return const Center(child: CircularProgressIndicator());
+            }
+          },
+        );
+      },
+    );
   }
 }
 
 Widget imageIcon(Dinner dinner) {
   return ClipRRect(
     borderRadius: BorderRadius.circular(8.0),
-    child: Image(
-      image: NetworkImage(dinner.photoUrl!),
+    child: CachedNetworkImage(
+      imageUrl: dinner.photoUrl!,
+      placeholder: (context, url) =>
+          const Center(child: CircularProgressIndicator()),
+      errorWidget: (context, url, error) => const Center(child: Placeholder()),
       width: 64,
       height: 64,
       fit: BoxFit.cover,

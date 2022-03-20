@@ -4,7 +4,6 @@ import 'package:deans_dinners/repository/data_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:path/path.dart';
 
 class AddDinnerFormScreen extends StatefulWidget {
   static const routeName = 'AddDinnerFormScreen';
@@ -32,18 +31,20 @@ class _AddDinnerFormScreenState extends State<AddDinnerFormScreen> {
   }
 
   Future<void> getPhoto() async {
-    photo = await _picker.pickImage(source: ImageSource.camera);
+    photo =
+        await _picker.pickImage(source: ImageSource.camera, imageQuality: 50);
     setState(() {});
   }
 
   Future<void> selectFromGallery() async {
-    photo = await _picker.pickImage(source: ImageSource.gallery);
+    photo =
+        await _picker.pickImage(source: ImageSource.gallery, imageQuality: 50);
     setState(() {});
   }
 
   Future<void> uploadPhotoToFirebase(Dinner dinner) async {
     Reference storageReference =
-        FirebaseStorage.instance.ref().child(basename(photo!.name));
+        FirebaseStorage.instance.ref().child(photo!.name);
     UploadTask uploadTask = storageReference.putFile(File(photo!.path));
     await uploadTask.whenComplete(() {});
     dinner.photoUrl = await storageReference.getDownloadURL();

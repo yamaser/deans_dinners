@@ -11,6 +11,21 @@ class SelectedDinners extends ChangeNotifier {
 
   void remove(Dinner dinner) {
     selectedDinners.remove(dinner);
+    selectedDinners
+        .removeWhere((item) => item.referenceId == dinner.referenceId);
+    notifyListeners();
+  }
+
+  bool containsDinnerRef(Dinner dinner) {
+    return selectedDinners
+        .map((e) => e.referenceId)
+        .toList()
+        .contains(dinner.referenceId);
+  }
+
+  void update(Dinner dinner) {
+    selectedDinners.remove(dinner);
+    selectedDinners.add(dinner);
     notifyListeners();
   }
 

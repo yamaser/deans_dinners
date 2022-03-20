@@ -2,6 +2,7 @@ import 'package:deans_dinners/models/selected_dinners.dart';
 import 'package:deans_dinners/screens/add_dinner_form_scree.dart';
 import 'package:deans_dinners/screens/add_entry_form_screen.dart';
 import 'package:deans_dinners/screens/details_dinner_screen.dart';
+import 'package:deans_dinners/screens/edit_dinner_screen.dart';
 import 'package:deans_dinners/screens/image_dinner_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:deans_dinners/home.dart';
@@ -25,7 +26,9 @@ class App extends StatelessWidget {
             AddDinnerFormScreen.routeName: (context) =>
                 const AddDinnerFormScreen(),
             ImageDinnerScreen.routeName: (context) => const ImageDinnerScreen(),
-            DetailsDinnerScreen.routeName: (context) => DetailsDinnerScreen(),
+            DetailsDinnerScreen.routeName: (context) =>
+                const DetailsDinnerScreen(),
+            EditDinnerScreen.routeName: ((context) => const EditDinnerScreen()),
           }),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:deans_dinners/models/dinner.dart';
 import 'package:deans_dinners/models/selected_dinners.dart';
 import 'package:deans_dinners/screens/details_dinner_screen.dart';
@@ -5,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:deans_dinners/repository/data_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
 
 class DinnersScreen extends StatelessWidget {
   final DataRepository repository = DataRepository();
@@ -51,15 +53,13 @@ class DinnerCard extends StatefulWidget {
 }
 
 class _DinnerCardState extends State<DinnerCard> {
-  bool selected = false;
-
   void pushDetailsDinnerScreen(context, Dinner dinner) {
     Navigator.of(context)
         .pushNamed(DetailsDinnerScreen.routeName, arguments: dinner);
   }
 
-  Widget selectableImage(Dinner dinner) {
-    if (selected == true) {
+  Widget selectableImage(Dinner dinner, bool isSelected) {
+    if (isSelected == true) {
       return Stack(
         alignment: AlignmentDirectional.topEnd,
         children: [
@@ -67,7 +67,14 @@ class _DinnerCardState extends State<DinnerCard> {
             borderRadius: BorderRadius.circular(6.0),
             child: AspectRatio(
               aspectRatio: 1.7,
-              child: Image.network(widget.dinner.photoUrl!, fit: BoxFit.cover),
+              child: CachedNetworkImage(
+                imageUrl: widget.dinner.photoUrl!,
+                placeholder: (context, url) =>
+                    const Center(child: CircularProgressIndicator()),
+                errorWidget: (context, url, error) =>
+                    const Center(child: Placeholder()),
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           const Padding(
@@ -84,7 +91,14 @@ class _DinnerCardState extends State<DinnerCard> {
         borderRadius: BorderRadius.circular(6.0),
         child: AspectRatio(
           aspectRatio: 1.7,
-          child: Image.network(widget.dinner.photoUrl!, fit: BoxFit.cover),
+          child: CachedNetworkImage(
+            imageUrl: widget.dinner.photoUrl!,
+            placeholder: (context, url) =>
+                const Center(child: CircularProgressIndicator()),
+            errorWidget: (context, url, error) =>
+                const Center(child: Placeholder()),
+            fit: BoxFit.cover,
+          ),
         ),
       );
     }
@@ -92,17 +106,20 @@ class _DinnerCardState extends State<DinnerCard> {
 
   @override
   Widget build(BuildContext context) {
+    var isSelected = context.select<SelectedDinners, bool>(
+        (value) => value.containsDinnerRef(widget.dinner));
+
     return GestureDetector(
       onTap: () => pushDetailsDinnerScreen(context, widget.dinner),
       onLongPress: () {
         var selectedDinners = context.read<SelectedDinners>();
-        selected = !selected;
-        if (selected) {
+        isSelected = !isSelected;
+        if (isSelected) {
           selectedDinners.add(widget.dinner);
         } else {
           selectedDinners.remove(widget.dinner);
         }
-        setState(() {});
+        HapticFeedback.lightImpact();
       },
       child: Card(
         child: Padding(
@@ -129,7 +146,7 @@ class _DinnerCardState extends State<DinnerCard> {
                 ),
                 const SizedBox(width: 12),
                 Flexible(
-                  child: selectableImage(widget.dinner),
+                  child: selectableImage(widget.dinner, isSelected),
                 ),
               ],
             ),
