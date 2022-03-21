@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:deans_dinners/models/selected_dinners.dart';
 import 'package:deans_dinners/repository/data_repository.dart';
 import 'package:deans_dinners/models/dinner.dart';
@@ -44,7 +45,14 @@ class GalleryScreen extends StatelessWidget {
         aspectRatio: 1,
         child: Hero(
           tag: dinner.referenceId!,
-          child: Image.network(dinner.photoUrl!, fit: BoxFit.cover),
+          child: CachedNetworkImage(
+            imageUrl: dinner.photoUrl!,
+            placeholder: (context, url) =>
+                const Center(child: CircularProgressIndicator()),
+            errorWidget: (context, url, error) =>
+                const Center(child: Placeholder()),
+            fit: BoxFit.cover,
+          ),
         ),
       ),
     );

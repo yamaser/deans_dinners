@@ -42,12 +42,7 @@ class _DetailsDinnerScreenState extends State<DetailsDinnerScreen> {
         },
         child: Column(
           children: [
-            Flexible(
-              child: Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: SelectableImage(dinner: dinner),
-              ),
-            ),
+            SelectableImage(dinner: dinner),
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(6.0),
@@ -90,7 +85,7 @@ class _DetailsDinnerScreenState extends State<DetailsDinnerScreen> {
                   style: ElevatedButton.styleFrom(primary: Colors.red),
                 ),
               ],
-            )
+            ),
           ],
         ),
       ),
@@ -106,23 +101,55 @@ class SelectableImage extends StatefulWidget {
   State<SelectableImage> createState() => _SelectableImageState();
 }
 
-class _SelectableImageState extends State<SelectableImage> {
+class _SelectableImageState extends State<SelectableImage>
+    with SingleTickerProviderStateMixin {
   bool isSelected = false;
+
+  late AnimationController? _controller;
+  late Animation<double> _paddingAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+
+    _paddingAnimation = TweenSequence(
+      <TweenSequenceItem<double>>[
+        TweenSequenceItem<double>(
+            tween: Tween<double>(begin: 4, end: 12), weight: 50),
+        TweenSequenceItem<double>(
+            tween: Tween<double>(begin: 12, end: 4), weight: 50),
+      ],
+    ).animate(_controller!);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller!.dispose();
+  }
 
   Widget dinnerImage() {
     if (isSelected == true) {
       return Stack(
         alignment: AlignmentDirectional.topEnd,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6.0),
-            child: CachedNetworkImage(
-              imageUrl: widget.dinner.photoUrl!,
-              placeholder: (context, url) =>
-                  const Center(child: CircularProgressIndicator()),
-              errorWidget: (context, url, error) =>
-                  const Center(child: Placeholder()),
-              fit: BoxFit.cover,
+          AspectRatio(
+            aspectRatio: 1,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(6.0),
+              child: CachedNetworkImage(
+                imageUrl: widget.dinner.photoUrl!,
+                placeholder: (context, url) =>
+                    const Center(child: CircularProgressIndicator()),
+                errorWidget: (context, url, error) =>
+                    const Center(child: Placeholder()),
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           const Padding(
@@ -135,14 +162,17 @@ class _SelectableImageState extends State<SelectableImage> {
         ],
       );
     } else {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(6.0),
-        child: CachedNetworkImage(
-          imageUrl: widget.dinner.photoUrl!,
-          placeholder: (context, url) =>
-              const Center(child: CircularProgressIndicator()),
-          errorWidget: (context, url, error) =>
-              const Center(child: Placeholder()),
+      return AspectRatio(
+        aspectRatio: 1,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(6.0),
+          child: CachedNetworkImage(
+              imageUrl: widget.dinner.photoUrl!,
+              placeholder: (context, url) =>
+                  const Center(child: CircularProgressIndicator()),
+              errorWidget: (context, url, error) =>
+                  const Center(child: Placeholder()),
+              fit: BoxFit.cover),
         ),
       );
     }
@@ -161,9 +191,19 @@ class _SelectableImageState extends State<SelectableImage> {
         } else {
           selectedDinners.remove(widget.dinner);
         }
+        _controller!.reset();
+        _controller!.forward();
         HapticFeedback.lightImpact();
       },
-      child: dinnerImage(),
+      child: AnimatedBuilder(
+        animation: _controller!,
+        builder: (context, _) {
+          return Padding(
+            padding: EdgeInsets.all(_paddingAnimation.value),
+            child: dinnerImage(),
+          );
+        },
+      ),
     );
   }
 }

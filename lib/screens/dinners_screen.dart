@@ -52,7 +52,36 @@ class DinnerCard extends StatefulWidget {
   State<DinnerCard> createState() => _DinnerCardState();
 }
 
-class _DinnerCardState extends State<DinnerCard> {
+class _DinnerCardState extends State<DinnerCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController? _controller;
+  late Animation<double> _paddingAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+
+    _paddingAnimation = TweenSequence(
+      <TweenSequenceItem<double>>[
+        TweenSequenceItem<double>(
+            tween: Tween<double>(begin: 0, end: 8), weight: 50),
+        TweenSequenceItem<double>(
+            tween: Tween<double>(begin: 8, end: 0), weight: 50),
+      ],
+    ).animate(_controller!);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller!.dispose();
+  }
+
   void pushDetailsDinnerScreen(context, Dinner dinner) {
     Navigator.of(context)
         .pushNamed(DetailsDinnerScreen.routeName, arguments: dinner);
@@ -63,18 +92,26 @@ class _DinnerCardState extends State<DinnerCard> {
       return Stack(
         alignment: AlignmentDirectional.topEnd,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6.0),
-            child: AspectRatio(
-              aspectRatio: 1.7,
-              child: CachedNetworkImage(
-                imageUrl: widget.dinner.photoUrl!,
-                placeholder: (context, url) =>
-                    const Center(child: CircularProgressIndicator()),
-                errorWidget: (context, url, error) =>
-                    const Center(child: Placeholder()),
-                fit: BoxFit.cover,
-              ),
+          AspectRatio(
+            aspectRatio: 1.7,
+            child: AnimatedBuilder(
+              animation: _controller!,
+              builder: (context, _) {
+                return Padding(
+                  padding: EdgeInsets.all(_paddingAnimation.value),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(6.0),
+                    child: CachedNetworkImage(
+                      imageUrl: widget.dinner.photoUrl!,
+                      placeholder: (context, url) =>
+                          const Center(child: CircularProgressIndicator()),
+                      errorWidget: (context, url, error) =>
+                          const Center(child: Placeholder()),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                );
+              },
             ),
           ),
           const Padding(
@@ -87,18 +124,26 @@ class _DinnerCardState extends State<DinnerCard> {
         ],
       );
     } else {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(6.0),
-        child: AspectRatio(
-          aspectRatio: 1.7,
-          child: CachedNetworkImage(
-            imageUrl: widget.dinner.photoUrl!,
-            placeholder: (context, url) =>
-                const Center(child: CircularProgressIndicator()),
-            errorWidget: (context, url, error) =>
-                const Center(child: Placeholder()),
-            fit: BoxFit.cover,
-          ),
+      return AspectRatio(
+        aspectRatio: 1.7,
+        child: AnimatedBuilder(
+          animation: _controller!,
+          builder: (context, _) {
+            return Padding(
+              padding: EdgeInsets.all(_paddingAnimation.value),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(6.0),
+                child: CachedNetworkImage(
+                  imageUrl: widget.dinner.photoUrl!,
+                  placeholder: (context, url) =>
+                      const Center(child: CircularProgressIndicator()),
+                  errorWidget: (context, url, error) =>
+                      const Center(child: Placeholder()),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            );
+          },
         ),
       );
     }
@@ -119,6 +164,8 @@ class _DinnerCardState extends State<DinnerCard> {
         } else {
           selectedDinners.remove(widget.dinner);
         }
+        _controller!.reset();
+        _controller!.forward();
         HapticFeedback.lightImpact();
       },
       child: Card(

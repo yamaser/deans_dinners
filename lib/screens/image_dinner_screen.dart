@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:deans_dinners/models/dinner.dart';
 import 'package:flutter/material.dart';
 
@@ -22,7 +23,13 @@ class ImageDinnerScreen extends StatelessWidget {
         },
         child: Hero(
           tag: dinner.referenceId!,
-          child: Image.network(dinner.photoUrl!),
+          child: CachedNetworkImage(
+            imageUrl: dinner.photoUrl!,
+            placeholder: (context, url) =>
+                const Center(child: CircularProgressIndicator()),
+            errorWidget: (context, url, error) =>
+                const Center(child: Placeholder()),
+          ),
         ),
       ),
     );
