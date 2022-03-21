@@ -8,15 +8,22 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 
-class DinnersScreen extends StatelessWidget {
-  final DataRepository repository = DataRepository();
-
-  DinnersScreen({
+class DinnersScreen extends StatefulWidget {
+  const DinnersScreen({
     Key? key,
   }) : super(key: key);
 
   @override
+  State<DinnersScreen> createState() => _DinnersScreenState();
+}
+
+class _DinnersScreenState extends State<DinnersScreen>
+    with AutomaticKeepAliveClientMixin {
+  final DataRepository repository = DataRepository();
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     return StreamBuilder<QuerySnapshot>(
         stream: repository.getDinnersStream(),
         builder: (content, snapshot) {
@@ -36,6 +43,9 @@ class DinnersScreen extends StatelessWidget {
           }
         });
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class DinnerCard extends StatefulWidget {

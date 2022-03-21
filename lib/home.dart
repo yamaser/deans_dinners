@@ -58,25 +58,27 @@ class _HomeState extends State<Home> {
   _HomeState() {
     screens = [
       {
-        'screen': EntriesScreen(),
+        'screen': const EntriesScreen(),
         'fab': entriesFAB(),
         'navBarItem': entriesNavBarItem(),
         'title': 'Entries',
       },
       {
-        'screen': DinnersScreen(),
+        'screen': const DinnersScreen(),
         'fab': dinnersFAB(),
         'navBarItem': dinnersNavBarItem(),
         'title': 'Dean\'s Dinners',
       },
       {
-        'screen': GalleryScreen(),
+        'screen': const GalleryScreen(),
         'fab': galleryFAB(),
         'navBarItem': galleryNavBarItem(),
         'title': 'Select Gallery',
       },
     ];
   }
+
+  final PageController _pageController = PageController(initialPage: 0);
 
   @override
   Widget build(BuildContext context) {
@@ -85,16 +87,18 @@ class _HomeState extends State<Home> {
           toolbarHeight: 40,
           centerTitle: true,
           title: Text(screens[currentIndex]['title']),
-          //backgroundColor: Colors.black,
         ),
-        body: IndexedStack(
-            index: currentIndex,
+        body: PageView(
+            controller: _pageController,
+            onPageChanged: (index) => setState(() => currentIndex = index),
             children: screens.map<Widget>((e) => e['screen']).toList()),
-        //screens[currentIndex]['screen'],
         bottomNavigationBar: BottomNavigationBar(
-            //backgroundColor: Colors.black,
             currentIndex: currentIndex,
-            onTap: (index) => setState(() => currentIndex = index),
+            onTap: (index) => _pageController.animateToPage(
+                  index,
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.ease,
+                ),
             items: screens
                 .map<BottomNavigationBarItem>((e) => e['navBarItem'])
                 .toList()),

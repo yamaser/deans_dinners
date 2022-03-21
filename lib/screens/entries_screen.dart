@@ -8,13 +8,23 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
-class EntriesScreen extends StatelessWidget {
+class EntriesScreen extends StatefulWidget {
+  const EntriesScreen({Key? key}) : super(key: key);
+
+  @override
+  State<EntriesScreen> createState() => _EntriesScreenState();
+}
+
+class _EntriesScreenState extends State<EntriesScreen>
+    with AutomaticKeepAliveClientMixin {
   final DataRepository repository = DataRepository();
 
-  EntriesScreen({Key? key}) : super(key: key);
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return StreamBuilder<QuerySnapshot>(
       stream: repository.getDinnersStream(),
       builder: (content, snapshot) {

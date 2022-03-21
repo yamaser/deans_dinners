@@ -6,32 +6,16 @@ import 'package:deans_dinners/screens/image_dinner_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class GalleryScreen extends StatelessWidget {
-  GalleryScreen({Key? key}) : super(key: key);
-  final DataRepository repository = DataRepository();
+class GalleryScreen extends StatefulWidget {
+  const GalleryScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return Consumer<SelectedDinners>(
-        builder: (context, selectedDinners, child) {
-      if (selectedDinners.selectedDinners.isNotEmpty) {
-        return Padding(
-          padding: const EdgeInsets.all(2),
-          child: GridView.count(
-            crossAxisCount: 3,
-            crossAxisSpacing: 2,
-            mainAxisSpacing: 2,
-            children:
-                _imageListWidgets(selectedDinners.selectedDinners, context),
-          ),
-        );
-      } else {
-        return Center(
-            child: Text('No dinners selected',
-                style: Theme.of(context).textTheme.headline5));
-      }
-    });
-  }
+  State<GalleryScreen> createState() => _GalleryScreenState();
+}
+
+class _GalleryScreenState extends State<GalleryScreen>
+    with AutomaticKeepAliveClientMixin {
+  final DataRepository repository = DataRepository();
 
   List<Widget> _imageListWidgets(
       List<Dinner> dinnerList, BuildContext context) {
@@ -62,4 +46,32 @@ class GalleryScreen extends StatelessWidget {
     Navigator.of(context)
         .pushNamed(ImageDinnerScreen.routeName, arguments: dinner);
   }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return Consumer<SelectedDinners>(
+      builder: (context, selectedDinners, child) {
+        if (selectedDinners.selectedDinners.isNotEmpty) {
+          return Padding(
+            padding: const EdgeInsets.all(2),
+            child: GridView.count(
+              crossAxisCount: 3,
+              crossAxisSpacing: 2,
+              mainAxisSpacing: 2,
+              children:
+                  _imageListWidgets(selectedDinners.selectedDinners, context),
+            ),
+          );
+        } else {
+          return Center(
+              child: Text('No dinners selected',
+                  style: Theme.of(context).textTheme.headline5));
+        }
+      },
+    );
+  }
+
+  @override
+  bool get wantKeepAlive => true;
 }
