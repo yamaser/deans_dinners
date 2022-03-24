@@ -48,54 +48,63 @@ class DataRepository {
     return entriesCollection.snapshots();
   }
 
-  Future<DocumentReference> addEntry(Dinner dinner, Entry entry) {
-    _updateDinnerOnAddEntry(dinner, entry);
-    return dinnersCollection
+  Future<void> addEntry(Dinner dinner, Entry entry) async {
+    await dinnersCollection
         .doc(dinner.referenceId)
         .collection('entries')
         .add(entry.toJson());
+    await _updateDinnerOnAddEntry(dinner);
   }
 
   Future<void> deleteEntry(Dinner dinner, Entry entry) async {
-    _updateDinnerOnDeleteEntry(dinner, entry);
     await dinnersCollection
         .doc(dinner.referenceId)
         .collection('entries')
         .doc(entry.referenceId)
         .delete();
+    await _updateDinnerOnDeleteEntry(dinner);
   }
 
-  Future<void> updateEntry(Dinner dinner, Entry entry) async {
-    await dinnersCollection
+  Future<void> updateEntry(
+      Dinner oldDinner, Dinner newDinner, Entry entry) async {
+    await deleteEntry(oldDinner, entry);
+    await addEntry(newDinner, entry);
+  }
+
+  Future<void> _updateDinnerOnAddEntry(Dinner dinner) async {
+    num sum = 0;
+    var querySnapshot = await dinnersCollection
         .doc(dinner.referenceId)
         .collection('entries')
-        .doc(entry.referenceId)
-        .update(entry.toJson());
-  }
-
-  void _updateDinnerOnAddEntry(Dinner dinner, Entry entry) {
-    if (dinner.numRatings == 0) {
-      dinner.aveRating = entry.rating;
-      dinner.lastServed = entry.date;
-    } else {
-      dinner.aveRating =
-          (dinner.numRatings * dinner.aveRating! + entry.rating) /
-              (dinner.numRatings + 1);
+        .orderBy('date', descending: true)
+        .get();
+    dinner.numRatings = querySnapshot.docs.length;
+    for (var doc in querySnapshot.docs) {
+      sum += doc['rating'];
     }
-    dinner.numRatings += 1;
-    updateDinner(dinner);
+    dinner.aveRating = sum / dinner.numRatings;
+    dinner.lastServed = querySnapshot.docs.first['date'].toDate();
+    await updateDinner(dinner);
   }
 
-  void _updateDinnerOnDeleteEntry(Dinner dinner, Entry entry) {
-    if (dinner.numRatings == 1) {
+  Future<void> _updateDinnerOnDeleteEntry(Dinner dinner) async {
+    num sum = 0;
+    var querySnapshot = await dinnersCollection
+        .doc(dinner.referenceId)
+        .collection('entries')
+        .orderBy('date', descending: true)
+        .get();
+    dinner.numRatings = querySnapshot.docs.length;
+    if (dinner.numRatings == 0) {
       dinner.aveRating = null;
       dinner.lastServed = null;
     } else {
-      dinner.aveRating =
-          (dinner.numRatings * dinner.aveRating! - entry.rating) /
-              (dinner.numRatings - 1);
+      for (var doc in querySnapshot.docs) {
+        sum += doc['rating'];
+      }
+      dinner.aveRating = sum / dinner.numRatings;
+      dinner.lastServed = querySnapshot.docs.first['date'].toDate();
     }
-    dinner.numRatings -= 1;
-    updateDinner(dinner);
+    await updateDinner(dinner);
   }
 }

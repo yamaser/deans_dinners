@@ -1,14 +1,16 @@
 import 'package:deans_dinners/models/dinner.dart';
+import 'package:deans_dinners/provider/google_sign_in.dart';
 import 'package:deans_dinners/screens/dinners_screen.dart';
 import 'package:deans_dinners/screens/entries_screen.dart';
 import 'package:deans_dinners/screens/add_entry_form_screen.dart';
-import 'package:deans_dinners/screens/add_dinner_form_scree.dart';
+import 'package:deans_dinners/screens/add_dinner_form_screen.dart';
 import 'package:deans_dinners/screens/gallery_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
-  static const routeName = '/';
+  static const routeName = 'home';
   @override
   State<Home> createState() => _HomeState();
 }
@@ -87,6 +89,14 @@ class _HomeState extends State<Home> {
           toolbarHeight: 40,
           centerTitle: true,
           title: Text(screens[currentIndex]['title']),
+          actions: <Widget>[
+            IconButton(
+              onPressed: () {
+                context.read<GoogleSignInProvider>().logout();
+              },
+              icon: const Icon(Icons.logout),
+            ),
+          ],
         ),
         body: PageView(
             controller: _pageController,

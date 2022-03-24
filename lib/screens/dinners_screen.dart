@@ -181,32 +181,30 @@ class _DinnerCardState extends State<DinnerCard>
       child: Card(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: IntrinsicHeight(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.dinner.name,
-                        style: Theme.of(context).textTheme.headline5,
-                      ),
-                      Text(
-                          'Last Served: ${widget.dinner.getLastServedAsString()}'),
-                      Text('Average Rating: ' + widget.dinner.getAveRating()),
-                      Text('Number of Ratings: ${widget.dinner.numRatings}'),
-                      Text('Description: ${widget.dinner.description}'),
-                    ],
-                  ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.dinner.name,
+                      style: Theme.of(context).textTheme.headline5,
+                    ),
+                    Text(
+                        'Last Served: ${widget.dinner.getLastServedAsString()}'),
+                    Text('Average Rating: ' + widget.dinner.getAveRating()),
+                    Text('Number of Ratings: ${widget.dinner.numRatings}'),
+                    Text('Description: ${widget.dinner.description}'),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                Flexible(
-                  child: selectableImage(widget.dinner, isSelected),
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 12),
+              Flexible(
+                child: selectableImage(widget.dinner, isSelected),
+              ),
+            ],
           ),
         ),
       ),

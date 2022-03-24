@@ -2,39 +2,49 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:deans_dinners/components/date_picker_form_field.dart';
 import 'package:deans_dinners/models/dinner.dart';
 import 'package:deans_dinners/models/entry.dart';
+import 'package:deans_dinners/models/screen_arguments.dart';
 import 'package:deans_dinners/repository/data_repository.dart';
 import 'package:flutter/material.dart';
 
-class AddEntryFormScreen extends StatefulWidget {
-  static const routeName = 'AddEntryFormScreen';
+class EditEntryScreen extends StatefulWidget {
+  static const routeName = 'EditEntryScreen';
 
-  const AddEntryFormScreen({Key? key}) : super(key: key);
+  const EditEntryScreen({Key? key}) : super(key: key);
 
   @override
-  State<AddEntryFormScreen> createState() => _AddEntryFormScreenState();
+  State<EditEntryScreen> createState() => _EditEntryScreenState();
 }
 
-class _AddEntryFormScreenState extends State<AddEntryFormScreen> {
+class _EditEntryScreenState extends State<EditEntryScreen> {
   final formKey = GlobalKey<FormState>();
   DataRepository repository = DataRepository();
-  Entry entry = Entry(date: DateTime.now(), rating: 0);
-  DateTime selectedDate = DateTime.now();
-  Dinner selectedDinner = Dinner();
+
+  List<DropdownMenuItem<Dinner>> _buildDropdownMenuItems(
+      List<Dinner> dinnerList) {
+    return dinnerList.map((e) {
+      return DropdownMenuItem(child: Text(e.name), value: e);
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final args = ModalRoute.of(context)!.settings.arguments as ScreenArguments;
+    Entry entry = args.entry;
+    Dinner dinner = args.dinner;
     return Scaffold(
         appBar: AppBar(
           title: const Text('Create New Entry'),
           toolbarHeight: 40,
           //backgroundColor: Colors.black,
         ),
-        body: StreamBuilder<QuerySnapshot>(
-          stream: repository.getDinnersStream(),
+        body: FutureBuilder<QuerySnapshot>(
+          future: repository.getDinnersSnapshot(),
           builder: (content, snapshot) {
             if (snapshot.hasData) {
               final List<Dinner> dinnerList =
                   Dinner.buildDinnerListFromSnapshot(snapshot);
+              Dinner selectedDinner = dinnerList.firstWhere(
+                  (element) => dinner.referenceId == element.referenceId);
               return Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Form(
@@ -50,7 +60,7 @@ class _AddEntryFormScreenState extends State<AddEntryFormScreen> {
                             ),
                             hint: const Text('Select a dinner'),
                             autofocus: true,
-                            value: dinnerList[0],
+                            value: selectedDinner,
                             items: _buildDropdownMenuItems(dinnerList),
                             onChanged: (item) {},
                             onSaved: (value) {
@@ -64,7 +74,7 @@ class _AddEntryFormScreenState extends State<AddEntryFormScreen> {
                               labelText: 'Rating',
                               border: OutlineInputBorder(),
                             ),
-                            value: 3,
+                            value: entry.rating,
                             items: [0, 1, 2, 3, 4, 5]
                                 .map((item) => DropdownMenuItem(
                                       child: Text(item.toString()),
@@ -92,7 +102,9 @@ class _AddEntryFormScreenState extends State<AddEntryFormScreen> {
                       ElevatedButton(
                           onPressed: () {
                             formKey.currentState!.save();
-                            repository.addEntry(selectedDinner, entry);
+                            repository.updateEntry(
+                                dinner, selectedDinner, entry);
+                            dinner = selectedDinner;
                             Navigator.of(context).pop();
                           },
                           child: const Text('Submit')),
@@ -105,12 +117,5 @@ class _AddEntryFormScreenState extends State<AddEntryFormScreen> {
             }
           },
         ));
-  }
-
-  List<DropdownMenuItem<Dinner>> _buildDropdownMenuItems(
-      List<Dinner> dinnerList) {
-    return dinnerList.map((e) {
-      return DropdownMenuItem(child: Text(e.name), value: e);
-    }).toList();
   }
 }

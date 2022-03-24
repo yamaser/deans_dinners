@@ -29,4 +29,8 @@ class Entry {
   String getDateAsString() {
     return DateFormat('MMMM d, y').format(date).toString();
   }
+
+  String? getComment() {
+    return comment ?? '';
+  }
 }

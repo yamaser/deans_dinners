@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:deans_dinners/components/dinner_image.dart';
 import 'package:deans_dinners/models/dinner.dart';
 import 'package:deans_dinners/models/selected_dinners.dart';
 import 'package:deans_dinners/repository/data_repository.dart';
@@ -133,25 +133,12 @@ class _SelectableImageState extends State<SelectableImage>
     _controller!.dispose();
   }
 
-  Widget dinnerImage() {
+  Widget dinnerImage(Dinner dinner) {
     if (isSelected == true) {
       return Stack(
         alignment: AlignmentDirectional.topEnd,
         children: [
-          AspectRatio(
-            aspectRatio: 1,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(6.0),
-              child: CachedNetworkImage(
-                imageUrl: widget.dinner.photoUrl!,
-                placeholder: (context, url) =>
-                    const Center(child: CircularProgressIndicator()),
-                errorWidget: (context, url, error) =>
-                    const Center(child: Placeholder()),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
+          DinnerImage(dinner: dinner),
           const Padding(
             padding: EdgeInsets.all(2.0),
             child: Icon(
@@ -162,19 +149,7 @@ class _SelectableImageState extends State<SelectableImage>
         ],
       );
     } else {
-      return AspectRatio(
-        aspectRatio: 1,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(6.0),
-          child: CachedNetworkImage(
-              imageUrl: widget.dinner.photoUrl!,
-              placeholder: (context, url) =>
-                  const Center(child: CircularProgressIndicator()),
-              errorWidget: (context, url, error) =>
-                  const Center(child: Placeholder()),
-              fit: BoxFit.cover),
-        ),
-      );
+      return DinnerImage(dinner: dinner);
     }
   }
 
@@ -200,7 +175,7 @@ class _SelectableImageState extends State<SelectableImage>
         builder: (context, _) {
           return Padding(
             padding: EdgeInsets.all(_paddingAnimation.value),
-            child: dinnerImage(),
+            child: dinnerImage(widget.dinner),
           );
         },
       ),

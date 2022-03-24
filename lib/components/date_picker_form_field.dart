@@ -10,14 +10,20 @@ class DatePickerFormField extends StatefulWidget {
 }
 
 class _DatePickerFormFieldState extends State<DatePickerFormField> {
-  DateTime selectedDate = DateTime.now();
+  late DateTime selectedDate;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedDate = widget.entry.date;
+  }
 
   Future pickDate(BuildContext context) async {
     final pickedDate = await showDatePicker(
         context: context,
-        initialDate: DateTime.now(),
-        firstDate: DateTime(DateTime.now().year - 5),
-        lastDate: DateTime(DateTime.now().year + 5));
+        initialDate: widget.entry.date,
+        firstDate: DateTime(widget.entry.date.year - 5),
+        lastDate: DateTime(widget.entry.date.year + 5));
 
     if (pickedDate == null) return;
     setState(() => selectedDate = pickedDate);

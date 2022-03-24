@@ -2,11 +2,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:deans_dinners/components/star_display.dart';
 import 'package:deans_dinners/models/dinner.dart';
 import 'package:deans_dinners/models/entry.dart';
+import 'package:deans_dinners/models/screen_arguments.dart';
 import 'package:deans_dinners/repository/data_repository.dart';
+import 'package:deans_dinners/screens/details_entry_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 
 class EntriesScreen extends StatefulWidget {
   const EntriesScreen({Key? key}) : super(key: key);
@@ -19,8 +20,22 @@ class _EntriesScreenState extends State<EntriesScreen>
     with AutomaticKeepAliveClientMixin {
   final DataRepository repository = DataRepository();
 
-  @override
-  bool get wantKeepAlive => true;
+  void pushDetailsDinnerScreen(context, Dinner dinner, Entry entry) {
+    Navigator.of(context).pushNamed(DetailsEntryScreen.routeName,
+        arguments: ScreenArguments(dinner, entry));
+  }
+
+  Widget entryListTile(Entry entry, Dinner dinner) {
+    return ListTile(
+      leading: imageIcon(dinner),
+      title: Text(entry.getDateAsString()),
+      subtitle: Text(dinner.name),
+      trailing: StarDisplayWidget(
+        value: entry.rating as int,
+      ),
+      onTap: () => pushDetailsDinnerScreen(context, dinner, entry),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,8 +62,7 @@ class _EntriesScreenState extends State<EntriesScreen>
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             Dinner dinner = Dinner.fromSnapshot(snapshot.data!);
-                            return slidable(entriesList[index], dinner,
-                                repository, context);
+                            return entryListTile(entriesList[index], dinner);
                           } else {
                             return const Center(
                                 child: CircularProgressIndicator());
@@ -63,6 +77,9 @@ class _EntriesScreenState extends State<EntriesScreen>
       },
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 Widget imageIcon(Dinner dinner) {
@@ -83,29 +100,4 @@ Widget imageIcon(Dinner dinner) {
 
 String datetimeFormat(DateTime datetime) {
   return DateFormat('MMMM d, y').format(datetime).toString();
-}
-
-Widget slidable(Entry entry, Dinner dinner, DataRepository repository,
-    BuildContext context) {
-  return Slidable(
-    endActionPane: ActionPane(
-      extentRatio: 0.2,
-      motion: const ScrollMotion(),
-      children: [
-        SlidableAction(
-            onPressed: ((context) => repository.deleteEntry(dinner, entry)),
-            backgroundColor: Colors.red,
-            icon: Icons.delete,
-            label: 'Delete')
-      ],
-    ),
-    child: ListTile(
-      leading: imageIcon(dinner),
-      title: Text(entry.getDateAsString()),
-      subtitle: Text(dinner.name),
-      trailing: StarDisplayWidget(
-        value: entry.rating as int,
-      ),
-    ),
-  );
 }
