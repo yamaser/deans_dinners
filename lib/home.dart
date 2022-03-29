@@ -1,4 +1,5 @@
 import 'package:deans_dinners/models/dinner.dart';
+import 'package:deans_dinners/provider/selected_dinners.dart';
 import 'package:deans_dinners/provider/google_sign_in.dart';
 import 'package:deans_dinners/screens/dinners_screen.dart';
 import 'package:deans_dinners/screens/entries_screen.dart';
@@ -18,7 +19,6 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   int currentIndex = 0;
   List screens = [];
-  List<Dinner> selectedDinnerList = [];
 
   void addDinnerToList(List<Dinner> selectedDinners, Dinner dinner) {
     selectedDinners.add(dinner);
@@ -26,6 +26,10 @@ class _HomeState extends State<Home> {
 
   void removeDinnerFromList(List<Dinner> selectedDinners, Dinner dinner) {
     selectedDinners.remove(dinner);
+  }
+
+  void clearGallery() {
+    context.read<SelectedDinners>().clearAll();
   }
 
   void entriesButtonFunction(BuildContext context) {
@@ -51,9 +55,17 @@ class _HomeState extends State<Home> {
   }
 
   Widget galleryFAB() {
-    return FloatingActionButton(
-      onPressed: () {},
-      child: const Icon(Icons.add),
+    return Consumer<SelectedDinners>(
+      builder: (context, selectedDinners, child) {
+        if (selectedDinners.selectedDinners.isNotEmpty) {
+          return FloatingActionButton(
+            backgroundColor: Colors.red,
+            onPressed: clearGallery,
+            child: const Icon(Icons.clear_all),
+          );
+        }
+        return Container();
+      },
     );
   }
 

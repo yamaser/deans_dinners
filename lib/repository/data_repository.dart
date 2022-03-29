@@ -7,9 +7,7 @@ class DataRepository {
       FirebaseFirestore.instance.collection('dinners');
 
   Stream<QuerySnapshot> getDinnersStream() {
-    return dinnersCollection
-        .orderBy('lastServed', descending: true)
-        .snapshots();
+    return dinnersCollection.orderBy('lastServed').snapshots();
   }
 
   Future<QuerySnapshot> getDinnersSnapshot() {

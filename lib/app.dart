@@ -1,4 +1,4 @@
-import 'package:deans_dinners/models/selected_dinners.dart';
+import 'package:deans_dinners/provider/selected_dinners.dart';
 import 'package:deans_dinners/provider/google_sign_in.dart';
 import 'package:deans_dinners/screens/add_dinner_form_screen.dart';
 import 'package:deans_dinners/screens/add_entry_form_screen.dart';

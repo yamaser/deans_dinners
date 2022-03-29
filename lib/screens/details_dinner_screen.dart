@@ -1,6 +1,6 @@
 import 'package:deans_dinners/components/dinner_image.dart';
 import 'package:deans_dinners/models/dinner.dart';
-import 'package:deans_dinners/models/selected_dinners.dart';
+import 'package:deans_dinners/provider/selected_dinners.dart';
 import 'package:deans_dinners/repository/data_repository.dart';
 import 'package:deans_dinners/screens/edit_dinner_screen.dart';
 import 'package:flutter/material.dart';

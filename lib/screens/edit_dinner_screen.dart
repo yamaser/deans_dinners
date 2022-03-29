@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:deans_dinners/models/dinner.dart';
-import 'package:deans_dinners/models/selected_dinners.dart';
+import 'package:deans_dinners/provider/selected_dinners.dart';
 import 'package:deans_dinners/repository/data_repository.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';

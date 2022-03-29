@@ -29,7 +29,8 @@ class SelectedDinners extends ChangeNotifier {
     notifyListeners();
   }
 
-  void removeAll() {
+  void clearAll() {
     selectedDinners.clear();
+    notifyListeners();
   }
 }

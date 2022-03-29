@@ -1,5 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:deans_dinners/models/selected_dinners.dart';
+import 'package:deans_dinners/provider/selected_dinners.dart';
 import 'package:deans_dinners/repository/data_repository.dart';
 import 'package:deans_dinners/models/dinner.dart';
 import 'package:deans_dinners/screens/image_dinner_screen.dart';

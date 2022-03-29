@@ -38,7 +38,7 @@ class _SignInScreenState extends State<SignInScreen> {
               onPressed: () {
                 context.read<GoogleSignInProvider>().googleLogin();
               },
-              label: const Text('Sign Up with Google'),
+              label: const Text('Continue with Google'),
               icon: const FaIcon(
                 FontAwesomeIcons.google,
                 color: Colors.red,
