@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "794248589521-5v71i1pq4cgffmn5les13a8q99gecnb2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.deans_dinners",
+            "certificate_hash": "28b67197f2e3e3a5f1acab21843b44545e9cad62"
+          }
+        },
+        {
           "client_id": "794248589521-10mq5cv6qn873gofj1ue1agck4v5hnq3.apps.googleusercontent.com",
           "client_type": 3
         }
